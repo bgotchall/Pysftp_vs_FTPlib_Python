@@ -1,0 +1,99 @@
+11/12/2019
+
+Carrier1
+
+Number of Files Pulled: 290
+Number of Files in folder before pull(J:\): 15500
+Number of Files in folder after pull(J:\): 15790
+
+Files Downloaded:
+Downloaded 386697
+Downloaded 386697
+Downloaded 386697
+Downloaded 386697
+Downloaded 406698
+Downloaded 406698
+Downloaded 406698
+Downloaded 406698
+
+........................etc.
+
+
+
+**************************************************
+**************************************************
+11/8/2019
+
+Carrier2
+
+Number of Files Pulled: 0
+Number of Files in folder before pull(J:\): 15500
+Number of Files in folder after pull(J:\): 15500
+
+Files Downloaded:
+
+**************************************************
+**************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
