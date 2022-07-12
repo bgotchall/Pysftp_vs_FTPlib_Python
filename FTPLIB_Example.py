@@ -11,17 +11,18 @@ import shutil
 #the file and moves to a different spot since the log can be accidentally wiped.
 
 control_files_folder='C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/settings/'
+log_files_folder='C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/'
 
 #The master log is keeping track of all files being pulled and date.
 
-src = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/Master_Log.txt'
-dst = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/backup_logs/'
+src = log_files_folder + 'Master_Log.txt'
+dst = log_files_folder + 'backup_logs/'
 
 #Copy log file to back up location
 shutil.copy(src, dst)
 
-src2 = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/Master_Log.txt'
-dst2 = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/backup_logs/'
+src2 = log_files_folder + 'Master_Log.txt'
+dst2 = log_files_folder + 'backup_logs/'
 shutil.copy(src2, dst2)   #bg:  I can't figure out what this is trying to do.
 
 #Getting modification date of master log file and turning it into string and taking out some symbols.
@@ -179,93 +180,93 @@ masterfile.close()
 
 # #How many files in folder after pull.
 
-# pull = os.listdir(destination)
-# carrierfolderafter = len(pull)
+pull = os.listdir(destination)
+carrierfolderafter = len(pull)
 
-# print("------Ending with " + str(carrierfolderafter) + " objects in destination folder------")
+print("------Ending with " + str(carrierfolderafter) + " objects in destination folder------")
 
-# carrierfoldercount = carrierfolderafter - carrierfolderbefore
+carrierfoldercount = carrierfolderafter - carrierfolderbefore
 
-# print("------Number of files pulled was " + str(carrierfoldercount) + ".------")
+print("------Number of files pulled was " + str(carrierfoldercount) + ".------")
 
-# #Looking at remote drive and deciding if in a list if their are duplicate values
+ #Looking at remote drive and deciding if in a list if their are duplicate values
 
-# duplicates = [x for x in outboundfiles if outboundfiles.count(x) > 1]
+duplicates = [x for x in outboundfiles if outboundfiles.count(x) > 1]
 
-# print("Files reviewed. Moving to log information.")
+print("Files reviewed. Moving to log information.")
 
-# #Start logging information. File will be created if not existing at: path
+ #Start logging information. File will be created if not existing at: path
 
-# #Change working drive for Master Logs
+ #Change working drive for Master Logs
 
-# os.chdir('path_to_master_log')
+os.chdir(log_files_folder)
 
-# masterfile = open('path_to_master_log\Master_Log.txt', 'r+')
-# masteroldtext = masterfile.read()
-# masterfile.close()
-# masterfile = open('path_to_master_log\Master_Log.txt', 'w+')
-# masterfile.write("**************************************************" + "\n")
-# masterfile.write("**************************************************" + "\n")
-# masterfile.write(todaysdate + "\n")
-# masterfile.write("\n")
-# masterfile.write(str(carriername) + "\n")
-# masterfile.write("\n")
-# masterfile.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
-# masterfile.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
-# masterfile.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
-# masterfile.write("\n")
-# masterfile.write("Files Downloaded:" + "\n")
-# masterfile.write(masteroldtext + "\n")
-# masterfile.close()
+masterfile = open('Master_Log.txt', 'r+')
+masteroldtext = masterfile.read()
+masterfile.close()
+masterfile = open('Master_Log.txt', 'w+')
+masterfile.write("**************************************************" + "\n")
+masterfile.write("**************************************************" + "\n")
+masterfile.write(todaysdate + "\n")
+masterfile.write("\n")
+masterfile.write(str(carriername) + "\n")
+masterfile.write("\n")
+masterfile.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
+masterfile.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
+masterfile.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
+masterfile.write("\n")
+masterfile.write("Files Downloaded:" + "\n")
+masterfile.write(masteroldtext + "\n")
+masterfile.close()
 
 # #Change working drive
 
-# os.chdir('to_not_master_path')
+os.chdir(log_files_folder)
 
-# #Reading log file or creating a new one and saving old text. Next, writes log information and uses defined variables above.
+#Reading log file or creating a new one and saving old text. Next, writes log information and uses defined variables above.
 
-# file = open('to_not_master_path_FtpLogFile.txt', 'r+')
-# oldtext = file.read()
-# file.close()
-# file = open('to_not_master_path_FtpLogFile.txt', 'w+')
-# file.write("**************************************************" + "\n")
-# file.write("**************************************************" + "\n")
-# file.write(todaysdate + "\n")
-# file.write("\n")
-# file.write(str(carriername) + "\n")
-# file.write("\n")
-# file.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
-# file.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
-# file.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
+file = open('FtpLogFile.txt', 'r+')
+oldtext = file.read()
+file.close()
+file = open('FtpLogFile.txt', 'w+')
+file.write("**************************************************" + "\n")
+file.write("**************************************************" + "\n")
+file.write(todaysdate + "\n")
+file.write("\n")
+file.write(str(carriername) + "\n")
+file.write("\n")
+file.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
+file.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
+file.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
 
-# #This can be used to find files of certain names and give basically an alert or heads up in log.
+#This can be used to find files of certain names and give basically an alert or heads up in log.
 
-# file.write("ALERTS:" + "\n")
+file.write("ALERTS:" + "\n")
 
-# #Use in if statement...from todays day minus 14 days if you see anything with file names write in log.
-# seven = (datetime.datetime.today() + timedelta(days=-14))
+#Use in if statement...from todays day minus 14 days if you see anything with file names write in log.
+seven = (datetime.datetime.today() + timedelta(days=-14))
 
 
-# Sub = 'FTP_Confirmation'
-# Sub2 = 'Test_FTP'
+Sub = 'FTP_Confirmation'
+Sub2 = 'Test_FTP'
 
-# for text in existingfiles:
-#     if Sub in text or Sub2 in text:
-#         x = 'path_to_file\\' + text
-#         modTimesinceEpoc = os.path.getmtime(x)
-#         modificationTime = datetime.datetime.fromtimestamp(modTimesinceEpoc)
-#         #If any of files pull have the Sub or Sub2 in name, write in log.
-#         if modificationTime >= seven:
-#             file.write(text + '-' + str(modificationTime) + "\n")
+for text in existingfiles:
+    if Sub in text or Sub2 in text:
+        x = 'path_to_file\\' + text
+        modTimesinceEpoc = os.path.getmtime(x)
+        modificationTime = datetime.datetime.fromtimestamp(modTimesinceEpoc)
+        #If any of files pull have the Sub or Sub2 in name, write in log.
+        if modificationTime >= seven:
+            file.write(text + '-' + str(modificationTime) + "\n")
 
-# file.write("WARNING:" + "\n")
-# file.write("(FILES BELOW NOT PULLED BECAUSE DUPLICATED FILE NAME. PLEASE REVIEW AND MANUALLY PULL IF NEED BE)." + "\n")
-# #file.write(duplicates + "\n")
-# for dup in duplicates:
-#     file.write(str(dup) + "\n")
-# #Add old text
-# file.write(oldtext + "\n")
-# file.close()
+file.write("WARNING:" + "\n")
+file.write("(FILES BELOW NOT PULLED BECAUSE DUPLICATED FILE NAME. PLEASE REVIEW AND MANUALLY PULL IF NEED BE)." + "\n")
+#file.write(duplicates + "\n")
+for dup in duplicates:
+    file.write(str(dup) + "\n")
+#Add old text
+file.write(oldtext + "\n")
+file.close()
 
 
 # controlstamp = os.listdir('path_withtimestamp')
@@ -281,9 +282,9 @@ masterfile.close()
 #     pass
 
 
-# print("Please review log file....")
-# input("Press Enter to exit")
+print("Please review log file....")
+input("Press Enter to exit")
 
-# #Open FtpLogFile for user at end for review.
+#Open FtpLogFile for user at end for review.
 
-# s.Popen(['start', 'FtpLogFile.txt'], shell=True)
+#s.Popen(['start', 'FtpLogFile.txt'], shell=True)
