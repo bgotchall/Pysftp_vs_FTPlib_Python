@@ -3,6 +3,7 @@ from ftplib import FTP
 import os
 import subprocess as s
 import datetime
+import time
 from datetime import timedelta
 import pandas as pd
 import shutil
@@ -89,7 +90,9 @@ date = datetime.datetime.today()
 month = str(date.month)
 day = str(date.day)
 year = str(date.year)
-todaysdate = str(month + "/" + day + "/" + year)
+hour=str(date.hour)
+minute=str(date.minute)
+todaysdate = str(month + "/" + day + "/" + year + " " + hour +":"+ minute)
 
 #Output to screen
 print("")
@@ -122,7 +125,19 @@ print(welcome_message)
 #Remote Directory
 
 outbounddrive = FTP.nlst('DATA/QUAL')
-print ("remote dir is",outbounddrive)           #bg:  this is a little odd.  it doesn't attempt to go to a certain dir.  hardcode for now.
+print ("remote dir is: ")
+print (outbounddrive)           #bg:  this is a little odd.  it doesn't attempt to go to a certain dir.  hardcode for now.
+
+print ("printing out the struct returned by mlsd")
+for name, fact in FTP.mlsd('DATA/QUAL'):
+
+    print(name);
+    this_name=name
+    print("////");
+    print(fact);
+
+
+
 
 #Local Directory
 outboundfiles = outbounddrive
@@ -158,21 +173,49 @@ masterfile = open(src, 'w+')
 # # # Preserve modification time is time file was last modified on carrier ftp and
 # # # will be used as last modified on local drive.
 
-for file in outboundfiles:
-    if file in existingfiles:
-        print("Passing on " + file)
-    else:
-        print("Downloading " + file)
+# for file in outboundfiles:
+for name, fact in FTP.mlsd('DATA/QUAL'):
+    if fact["type"]== 'file':
+        # print("this files name is")
+        # print(name)
+        # print("this files fact dict is")
+        # print(fact)
+        # print("the type is")
+        # print(fact["type"])
+        # print("the mod date I want to preserve for this is")
+        # print(fact["modify"])
+        if name in existingfiles:
+            print("File Exists: Passing on " + name)
+        else:
+            print("Downloading " + name)
 
-        #Pull file for FTP module
-        print("ftp command will be" + "RETR " + 'DATA/QUAL/' + file)
-        FTP.retrbinary("RETR " + 'DATA/QUAL/' + file, open(destination + file, 'wb').write)
-        masterfile.write("Downloaded " + 'DATA/QUAL' + file + "\n")
+            #Pull file for FTP module
+            #print("ftp command will be" + "RETR " + 'DATA/QUAL/' + file)
+            
+            FTP.retrbinary("RETR " + 'DATA/QUAL/' + name, open(destination + name, 'wb').write)
+            #fix the date of the newly downloaded file:
+            fileLocation = destination + name
+            modify_date=fact["modify"]
+            f_year = modify_date[0:4]
+            f_month = modify_date[4:6]
+            f_day = modify_date[6:8]
+            f_hour = modify_date[8:10]
+            f_minute = modify_date[10:12]
+            f_second = modify_date[12:14]
+
+            date = datetime.datetime(year=int(f_year), month=int(f_month), day=int(f_day), hour=int(f_hour), minute=int(f_minute), second=int(f_second))
+            modTime = time.mktime(date.timetuple())
+
+            os.utime(fileLocation, (modTime, modTime))
+            #done fixing the date
+            masterfile.write("Downloaded " + 'DATA/QUAL' + name + "\n")
 FTP.close()
+
+#ftp times are defined here: https://datatracker.ietf.org/doc/html/rfc3659#page-6  
+# basically they are 14 text digits.
 
 
 # #After done writing new text, add old text
-
 masterfile.write(masteroldtext + "\n")
 masterfile.close()
 
