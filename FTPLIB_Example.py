@@ -175,15 +175,7 @@ masterfile = open(src, 'w+')
 
 # for file in outboundfiles:
 for name, fact in FTP.mlsd('DATA/QUAL'):
-    if fact["type"]== 'file':
-        # print("this files name is")
-        # print(name)
-        # print("this files fact dict is")
-        # print(fact)
-        # print("the type is")
-        # print(fact["type"])
-        # print("the mod date I want to preserve for this is")
-        # print(fact["modify"])
+    if fact["type"]== 'file':                               # the first thing it lists is the current and parent directory 
         if name in existingfiles:
             print("File Exists: Passing on " + name)
         else:
