@@ -10,17 +10,19 @@ import shutil
 #This code is trying to protect the Master log file. If a script is partially run this code copies
 #the file and moves to a different spot since the log can be accidentally wiped.
 
+control_files_folder='C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/settings/'
+
 #The master log is keeping track of all files being pulled and date.
 
-src = 'path_to_file_with_file_name'
-dst = 'path_to_new_folder'
+src = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/Master_Log.txt'
+dst = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/backup_logs/'
 
 #Copy log file to back up location
 shutil.copy(src, dst)
 
-src2 = 'path_to_file_with_file_name_2'
-dst2 = 'path_to_new_folder_with_timestamp'
-shutil.copy(src2, dst2)
+src2 = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/Master_Log.txt'
+dst2 = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Log Files/backup_logs/'
+shutil.copy(src2, dst2)   #bg:  I can't figure out what this is trying to do.
 
 #Getting modification date of master log file and turning it into string and taking out some symbols.
 mastermodtime = os.path.getmtime(src2)
@@ -35,7 +37,8 @@ mastermodtime = mastermodtime.replace(".", "")
 os.chdir(dst2)
 
 #Duplicated Master Log added timestamp in name
-os.rename('Master_Log.txt', 'Master_Log' + mastermodtime + '.txt')
+timestamped_log_name= 'Master_Log' + mastermodtime + '.txt'
+os.rename('Master_Log.txt', timestamped_log_name)
 
 
 
@@ -47,9 +50,9 @@ os.rename('Master_Log.txt', 'Master_Log' + mastermodtime + '.txt')
 #This project was to be used as a template and replicated for other insurance carriers. The goal was to change
 # only these two variables.
 
-carrier = 'carrier1'
+carrier = 'ISE'
 
-destination = 'destination_folder'
+destination = 'C:/Users/bob.g/SigmaSense.com/SigmaSense Intranet - Production_Data/FTP_automation/Temp_dest_folder/'
 
 #----------------------------------------------------------------
 
@@ -62,7 +65,7 @@ carriername = carrier
 
 
 #Contained credientials that program would grab depending upon which carrier was selected above in the change section
-ctl = pd.read_csv('path_to_control.csv')
+ctl = pd.read_csv(control_files_folder + 'Control.csv')
 
 
 #Combining lists into a massive dictionary
@@ -110,20 +113,23 @@ FTP = FTP(host)
 
 FTP.login(user=username, passwd=password)
 
+welcome_message=FTP.getwelcome()
+print(welcome_message)
 
 # #Getting list of files in remote folder and local folder.
 
 #Remote Directory
 
-outbounddrive = FTP.nlst()
-
+outbounddrive = FTP.nlst('DATA/QUAL')
+print ("remote dir is",outbounddrive)           #bg:  this is a little odd.  it doesn't attempt to go to a certain dir.  hardcode for now.
 
 #Local Directory
 outboundfiles = outbounddrive
 
 #Files already in folder to ignore - increased speed of the program if you don't have to pull them again.
 existingfiles = os.listdir(destination)
-
+print ("existing files are: " )
+print (existingfiles)
 
 carrierfolderbefore = len(existingfiles)
 
@@ -132,24 +138,24 @@ print("------Starting with " + str(carrierfolderbefore) + " objects in destinati
 
 #Prepare logging to Master log on downloaded files
 
-masterfile = open('path_to_Master_Log.txt', 'r+')
+masterfile = open(src, 'r+')
 
-#Read file....now storing that information into a variable. When writing to a file, always wants to paste it at bottom
-# of file so I used this to post new entries at top.
+ #Read file....now storing that information into a variable. When writing to a file, always wants to paste it at bottom
+ # of file so I used this to post new entries at top.
 
 masteroldtext = masterfile.read()
 masterfile.close()
 
-#Reopened and preparing to write over it. The plus sign means if file doesn't exist create it.
+ #Reopened and preparing to write over it. The plus sign means if file doesn't exist create it.
 
-masterfile = open('path_to_Master_Log.txt', 'w+')
+masterfile = open(src, 'w+')
 
 
-# #For loop deciding if a file name exists.
-# # If exists, move on.
-# # If not, specifying where file and file name and then where file should go and file name
-# # Preserve modification time is time file was last modified on carrier ftp and
-# # will be used as last modified on local drive.
+# # #For loop deciding if a file name exists.
+# # # If exists, move on.
+# # # If not, specifying where file and file name and then where file should go and file name
+# # # Preserve modification time is time file was last modified on carrier ftp and
+# # # will be used as last modified on local drive.
 
 for file in outboundfiles:
     if file in existingfiles:
@@ -158,125 +164,126 @@ for file in outboundfiles:
         print("Downloading " + file)
 
         #Pull file for FTP module
-        FTP.retrbinary("RETR " + file, open(destination + file, 'wb').write)
-        masterfile.write("Downloaded " + file + "\n")
+        print("ftp command will be" + "RETR " + 'DATA/QUAL/' + file)
+        FTP.retrbinary("RETR " + 'DATA/QUAL/' + file, open(destination + file, 'wb').write)
+        masterfile.write("Downloaded " + 'DATA/QUAL' + file + "\n")
 FTP.close()
 
 
-#After done writing new text, add old text
+# #After done writing new text, add old text
 
 masterfile.write(masteroldtext + "\n")
 masterfile.close()
 
 
 
-#How many files in folder after pull.
+# #How many files in folder after pull.
 
-pull = os.listdir(destination)
-carrierfolderafter = len(pull)
+# pull = os.listdir(destination)
+# carrierfolderafter = len(pull)
 
-print("------Ending with " + str(carrierfolderafter) + " objects in destination folder------")
+# print("------Ending with " + str(carrierfolderafter) + " objects in destination folder------")
 
-carrierfoldercount = carrierfolderafter - carrierfolderbefore
+# carrierfoldercount = carrierfolderafter - carrierfolderbefore
 
-print("------Number of files pulled was " + str(carrierfoldercount) + ".------")
+# print("------Number of files pulled was " + str(carrierfoldercount) + ".------")
 
-#Looking at remote drive and deciding if in a list if their are duplicate values
+# #Looking at remote drive and deciding if in a list if their are duplicate values
 
-duplicates = [x for x in outboundfiles if outboundfiles.count(x) > 1]
+# duplicates = [x for x in outboundfiles if outboundfiles.count(x) > 1]
 
-print("Files reviewed. Moving to log information.")
+# print("Files reviewed. Moving to log information.")
 
-#Start logging information. File will be created if not existing at: path
+# #Start logging information. File will be created if not existing at: path
 
-#Change working drive for Master Logs
+# #Change working drive for Master Logs
 
-os.chdir('path_to_master_log')
+# os.chdir('path_to_master_log')
 
-masterfile = open('path_to_master_log\Master_Log.txt', 'r+')
-masteroldtext = masterfile.read()
-masterfile.close()
-masterfile = open('path_to_master_log\Master_Log.txt', 'w+')
-masterfile.write("**************************************************" + "\n")
-masterfile.write("**************************************************" + "\n")
-masterfile.write(todaysdate + "\n")
-masterfile.write("\n")
-masterfile.write(str(carriername) + "\n")
-masterfile.write("\n")
-masterfile.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
-masterfile.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
-masterfile.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
-masterfile.write("\n")
-masterfile.write("Files Downloaded:" + "\n")
-masterfile.write(masteroldtext + "\n")
-masterfile.close()
+# masterfile = open('path_to_master_log\Master_Log.txt', 'r+')
+# masteroldtext = masterfile.read()
+# masterfile.close()
+# masterfile = open('path_to_master_log\Master_Log.txt', 'w+')
+# masterfile.write("**************************************************" + "\n")
+# masterfile.write("**************************************************" + "\n")
+# masterfile.write(todaysdate + "\n")
+# masterfile.write("\n")
+# masterfile.write(str(carriername) + "\n")
+# masterfile.write("\n")
+# masterfile.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
+# masterfile.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
+# masterfile.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
+# masterfile.write("\n")
+# masterfile.write("Files Downloaded:" + "\n")
+# masterfile.write(masteroldtext + "\n")
+# masterfile.close()
 
-#Change working drive
+# #Change working drive
 
-os.chdir('to_not_master_path')
+# os.chdir('to_not_master_path')
 
-#Reading log file or creating a new one and saving old text. Next, writes log information and uses defined variables above.
+# #Reading log file or creating a new one and saving old text. Next, writes log information and uses defined variables above.
 
-file = open('to_not_master_path_FtpLogFile.txt', 'r+')
-oldtext = file.read()
-file.close()
-file = open('to_not_master_path_FtpLogFile.txt', 'w+')
-file.write("**************************************************" + "\n")
-file.write("**************************************************" + "\n")
-file.write(todaysdate + "\n")
-file.write("\n")
-file.write(str(carriername) + "\n")
-file.write("\n")
-file.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
-file.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
-file.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
+# file = open('to_not_master_path_FtpLogFile.txt', 'r+')
+# oldtext = file.read()
+# file.close()
+# file = open('to_not_master_path_FtpLogFile.txt', 'w+')
+# file.write("**************************************************" + "\n")
+# file.write("**************************************************" + "\n")
+# file.write(todaysdate + "\n")
+# file.write("\n")
+# file.write(str(carriername) + "\n")
+# file.write("\n")
+# file.write("Number of Files Pulled: " + str(carrierfoldercount) + "\n")
+# file.write("Number of Files in folder before pull(" + destination + "): " + str(carrierfolderbefore) + "\n")
+# file.write("Number of Files in folder after pull(" + destination + "): " + str(carrierfolderafter) + "\n")
 
-#This can be used to find files of certain names and give basically an alert or heads up in log.
+# #This can be used to find files of certain names and give basically an alert or heads up in log.
 
-file.write("ALERTS:" + "\n")
+# file.write("ALERTS:" + "\n")
 
-#Use in if statement...from todays day minus 14 days if you see anything with file names write in log.
-seven = (datetime.datetime.today() + timedelta(days=-14))
-
-
-Sub = 'FTP_Confirmation'
-Sub2 = 'Test_FTP'
-
-for text in existingfiles:
-    if Sub in text or Sub2 in text:
-        x = 'path_to_file\\' + text
-        modTimesinceEpoc = os.path.getmtime(x)
-        modificationTime = datetime.datetime.fromtimestamp(modTimesinceEpoc)
-        #If any of files pull have the Sub or Sub2 in name, write in log.
-        if modificationTime >= seven:
-            file.write(text + '-' + str(modificationTime) + "\n")
-
-file.write("WARNING:" + "\n")
-file.write("(FILES BELOW NOT PULLED BECAUSE DUPLICATED FILE NAME. PLEASE REVIEW AND MANUALLY PULL IF NEED BE)." + "\n")
-#file.write(duplicates + "\n")
-for dup in duplicates:
-    file.write(str(dup) + "\n")
-#Add old text
-file.write(oldtext + "\n")
-file.close()
+# #Use in if statement...from todays day minus 14 days if you see anything with file names write in log.
+# seven = (datetime.datetime.today() + timedelta(days=-14))
 
 
-controlstamp = os.listdir('path_withtimestamp')
-numberofcontrolstamps = len(os.listdir('path_withtimestamp'))
+# Sub = 'FTP_Confirmation'
+# Sub2 = 'Test_FTP'
 
-#Empty folder when 10 backups have been created...
-if numberofcontrolstamps == 10:
-    for file in controlstamp:
-        file = str(file)
-        stamp = 'path_withtimestamp' + file
-        os.remove(stamp)
-else:
-    pass
+# for text in existingfiles:
+#     if Sub in text or Sub2 in text:
+#         x = 'path_to_file\\' + text
+#         modTimesinceEpoc = os.path.getmtime(x)
+#         modificationTime = datetime.datetime.fromtimestamp(modTimesinceEpoc)
+#         #If any of files pull have the Sub or Sub2 in name, write in log.
+#         if modificationTime >= seven:
+#             file.write(text + '-' + str(modificationTime) + "\n")
+
+# file.write("WARNING:" + "\n")
+# file.write("(FILES BELOW NOT PULLED BECAUSE DUPLICATED FILE NAME. PLEASE REVIEW AND MANUALLY PULL IF NEED BE)." + "\n")
+# #file.write(duplicates + "\n")
+# for dup in duplicates:
+#     file.write(str(dup) + "\n")
+# #Add old text
+# file.write(oldtext + "\n")
+# file.close()
 
 
-print("Please review log file....")
-input("Press Enter to exit")
+# controlstamp = os.listdir('path_withtimestamp')
+# numberofcontrolstamps = len(os.listdir('path_withtimestamp'))
 
-#Open FtpLogFile for user at end for review.
+# #Empty folder when 10 backups have been created...
+# if numberofcontrolstamps == 10:
+#     for file in controlstamp:
+#         file = str(file)
+#         stamp = 'path_withtimestamp' + file
+#         os.remove(stamp)
+# else:
+#     pass
 
-s.Popen(['start', 'FtpLogFile.txt'], shell=True)
+
+# print("Please review log file....")
+# input("Press Enter to exit")
+
+# #Open FtpLogFile for user at end for review.
+
+# s.Popen(['start', 'FtpLogFile.txt'], shell=True)

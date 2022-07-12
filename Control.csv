@@ -1,2 +1,2 @@
 Carrier,Host Name,SFTP or FTP,Username,Password,Additional Notes
-Carrier1,ftp://,FTP,username,password,Program created 10/1/2019
+ISE,ftp.iselabs.com,FTP,sigftp,pGtr0400,none
