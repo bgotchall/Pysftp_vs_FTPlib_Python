@@ -272,6 +272,7 @@ for name, fact in FTP.mlsd(remote_dir):
             #done fixing the date
             #move it to the write sub dir:
             shutil.move(fileLocation, destination + dest_subdir)
+            
             masterfile.write("Downloaded," + todaysdate + ", " + remote_dir + name + ", " + str(size_in_MB)+ "MB, " + fact["size"]+ ", " + str(date) +"\n")
             diagfile.write("Downloaded " + remote_dir + name + " " + str(size_in_MB)+ "MB " + fact["size"]+ " " + str(date) +"\n")
 FTP.close()
