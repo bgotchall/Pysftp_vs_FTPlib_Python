@@ -48,7 +48,7 @@ print("#########################################################################
 host="ftp.iselabs.com"
 password="pGtr0400"
 username="sigftp"
-remote_dir="DATA/QUAL/"
+remote_dir="DATA/FT/"
 
 FTP = FTP(host)
 FTP.login(user=username, passwd=password)
@@ -88,7 +88,6 @@ for name, fact in FTP.mlsd(remote_dir):
             dest_subdir="sorted_good_stdf"
 
             
-
             #see if it is a text file:
             if ".txt" in name:
                 print("this is a text file")
@@ -101,7 +100,12 @@ for name, fact in FTP.mlsd(remote_dir):
                 summary=True
                 dest_subdir="text_summaries"
 
-            corr_strings={"CORR","SETUP","VERIFICATION","REPEATABILITY"}
+            if int(fact["size"]) < 20000:
+                print("This is a small 1-device file, probably a setup file")
+                setup_file=True
+                dest_subdir="rejected_trash_files"    
+
+            corr_strings={"CORR","SETUP","VERIFICATION","REPEATABILITY","___"}                  #3 consecutive underscores means they didn't do lot number data entry
             for  this_string in corr_strings:
                 if this_string in name.upper():
                     print ("this is a setup file")
@@ -112,46 +116,56 @@ for name, fact in FTP.mlsd(remote_dir):
             #print("ftp command will be" + "RETR " + 'DATA/QUAL/' + file)
             print("ftp command will be" + "RETR " + remote_dir + name)
             
-            FTP.retrbinary("RETR " + remote_dir + name, open(destination_folder + name, 'wb').write)
-            
-            #C:\Users\bob.g\SigmaSense.com\SigmaSense Intranet - Production_Data\FTP_automation\Temp_dest_folder
-            #fix the date of the newly downloaded file:
-            fileLocation = destination_folder + name
-            modify_date=fact["modify"]
-            f_year = modify_date[0:4]
-            f_month = modify_date[4:6]
-            f_day = modify_date[6:8]
-            f_hour = modify_date[8:10]
-            f_minute = modify_date[10:12]
-            f_second = modify_date[12:14]
+            try:
+                FTP.retrbinary("RETR " + remote_dir + name, open(destination_folder + name, 'wb').write)
+            except:
+                print("################Error.  FTP get failed.")
+            else:
+                #C:\Users\bob.g\SigmaSense.com\SigmaSense Intranet - Production_Data\FTP_automation\Temp_dest_folder
+                #fix the date of the newly downloaded file:
+                fileLocation = destination_folder + name
+                modify_date=fact["modify"]
+                f_year = modify_date[0:4]
+                f_month = modify_date[4:6]
+                f_day = modify_date[6:8]
+                f_hour = modify_date[8:10]
+                f_minute = modify_date[10:12]
+                f_second = modify_date[12:14]
 
-            date = datetime.datetime(year=int(f_year), month=int(f_month), day=int(f_day), hour=int(f_hour), minute=int(f_minute), second=int(f_second))
-            print (date)
-            modTime = time.mktime(date.timetuple())
-            size_in_MB=int(fact["size"])/1000000
-            os.utime(fileLocation, (modTime, modTime))
+                date = datetime.datetime(year=int(f_year), month=int(f_month), day=int(f_day), hour=int(f_hour), minute=int(f_minute), second=int(f_second))
+                print (date)
+                modTime = time.mktime(date.timetuple())
+                size_in_MB=int(fact["size"])/1000000
+                os.utime(fileLocation, (modTime, modTime))
             #done fixing the date
             #move it to the write sub dir:
-            shutil.move(fileLocation, destination_folder + dest_subdir)
-            new_json_item=dict()
-            new_json_item.update({"action": "Downloaded"})
-            new_json_item.update({"download_date": str(datetime.datetime.today())})
-            new_json_item.update({"source_file": name})
-            new_json_item.update({"size_in_mb": str(size_in_MB)})
-            new_json_item.update({"size_in_bytes": fact["size"]})
-            new_json_item.update({"server_date": str(date)})
+            try:
+                shutil.move(fileLocation, destination_folder + dest_subdir)
+            except:
+                print("this file already exists-- deleting the temp version")
+                try:
+                    os.remove(destination_folder + name)
+                except:
+                    print("removing the temp file didn't work, probably because the download itself failed")
+            else:
+                new_json_item=dict()
+                new_json_item.update({"action": "Downloaded"})
+                new_json_item.update({"download_date": str(datetime.datetime.today())})
+                new_json_item.update({"source_file": name})
+                new_json_item.update({"size_in_mb": str(size_in_MB)})
+                new_json_item.update({"size_in_bytes": fact["size"]})
+                new_json_item.update({"server_date": str(date)})
 
-            masterfile_data.append(new_json_item)
+                masterfile_data.append(new_json_item)
+                #write the log file after every download:
+                json_object=json.dumps(masterfile_data,indent=4)
+
+                masterfile=open(master_log_filename,'w')
+                masterfile.write(json_object)
+                masterfile.close() 
 FTP.close()            
 
 
 
 
 
-if 1:
-#write the log file:
-    json_object=json.dumps(masterfile_data,indent=4)
-
-    masterfile=open(master_log_filename,'w')
-    masterfile.write(json_object)
-    masterfile.close() 
