@@ -94,18 +94,20 @@ for name, fact in FTP.mlsd(remote_dir):
                 text_file=True
                 dest_subdir="text_datalogs"
 
+            if int(fact["size"]) < 20000:
+                print("This is a small 1-device file, probably a setup file")
+                setup_file=True
+                dest_subdir="rejected_trash_files"
+                    
                 #see if it is a summary file:
             if "summary" in name:
                 print ("this is a summary file")
                 summary=True
                 dest_subdir="text_summaries"
 
-            if int(fact["size"]) < 20000:
-                print("This is a small 1-device file, probably a setup file")
-                setup_file=True
-                dest_subdir="rejected_trash_files"    
+            
 
-            corr_strings={"CORR","SETUP","VERIFICATION","REPEATABILITY","___"}                  #3 consecutive underscores means they didn't do lot number data entry
+            corr_strings={"CORR","SETUP","VERIFICATION","REPEATABILITY"}                  #3 consecutive underscores can mean they didn't do data entry, but shows up in good files too.
             for  this_string in corr_strings:
                 if this_string in name.upper():
                     print ("this is a setup file")
