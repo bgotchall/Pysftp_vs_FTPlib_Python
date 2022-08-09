@@ -43,10 +43,29 @@ for this_item in masterfile_data:
 print("##########################################################################################")
 
 
-#open up the FTP source and get a listing:
-#site and credentials hardcoded for now:
-#get from control file
 
+
+#get credentials info from control file
+ctl = pd.read_csv(control_files_folder + 'Control.csv')
+
+
+#Combining lists into a  dictionary
+supplier_list = [supplier for supplier in ctl['Supplier']]
+host_list = [supplier for supplier in ctl['Host Name']]
+type_list = [supplier for supplier in ctl['SFTP or FTP']]
+user_list = [supplier for supplier in ctl['Username']]
+password_list = [password for password in ctl['Password']]
+remote_dir_list = [supplier for supplier in ctl['Remote_dir']]
+
+dict1 = dict((z[0], list(z[1:])) for z in zip(supplier_list, host_list, type_list, user_list, password_list,remote_dir_list))
+
+#Pull in control csv parameters
+host = dict1[supplier][0]
+username = dict1[supplier][2]
+password = dict1[supplier][3]
+remote_dir = dict1[supplier][4]
+
+#open up the FTP source and get a listing:
 FTP = FTP(host)
 FTP.login(user=username, passwd=password)
 
