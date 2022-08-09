@@ -98,7 +98,7 @@ for name, fact in FTP.mlsd(remote_dir):
                 print("This is a small 1-device file, probably a setup file")
                 setup_file=True
                 dest_subdir="rejected_trash_files"
-                    
+
                 #see if it is a summary file:
             if "summary" in name:
                 print ("this is a summary file")
@@ -149,22 +149,23 @@ for name, fact in FTP.mlsd(remote_dir):
                     os.remove(destination_folder + name)
                 except:
                     print("removing the temp file didn't work, probably because the download itself failed")
-            else:
-                new_json_item=dict()
-                new_json_item.update({"action": "Downloaded"})
-                new_json_item.update({"download_date": str(datetime.datetime.today())})
-                new_json_item.update({"source_file": name})
-                new_json_item.update({"size_in_mb": str(size_in_MB)})
-                new_json_item.update({"size_in_bytes": fact["size"]})
-                new_json_item.update({"server_date": str(date)})
 
-                masterfile_data.append(new_json_item)
-                #write the log file after every download:
-                json_object=json.dumps(masterfile_data,indent=4)
+            new_json_item=dict()
+            new_json_item.update({"action": "Downloaded"})
+            new_json_item.update({"download_date": str(datetime.datetime.today())})
+            new_json_item.update({"source_file": name})
+            new_json_item.update({"size_in_mb": str(size_in_MB)})
+            new_json_item.update({"size_in_bytes": fact["size"]})
+            new_json_item.update({"server_date": str(date)})
 
-                masterfile=open(master_log_filename,'w')
-                masterfile.write(json_object)
-                masterfile.close() 
+            masterfile_data.append(new_json_item)
+            #write the log file after every download:
+            json_object=json.dumps(masterfile_data,indent=4)
+
+            masterfile=open(master_log_filename,'w')
+            masterfile.write(json_object)
+            masterfile.close() 
+            print("thing to trap on")
 FTP.close()            
 
 
