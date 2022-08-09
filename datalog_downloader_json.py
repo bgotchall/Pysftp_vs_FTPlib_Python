@@ -45,7 +45,7 @@ print("#########################################################################
 
 #open up the FTP source and get a listing:
 #site and credentials hardcoded for now:
-
+#get from control file
 
 FTP = FTP(host)
 FTP.login(user=username, passwd=password)
