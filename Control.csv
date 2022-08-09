@@ -1,2 +1,3 @@
 ﻿Supplier,Host Name,SFTP or FTP,Username,Password,Remote_dir,Additional Notes
 ISE,ftp.iselabs.com,FTP,sigftp,pGtr0400,DATA/QUAL,none
+dummy

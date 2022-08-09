@@ -45,10 +45,7 @@ print("#########################################################################
 
 #open up the FTP source and get a listing:
 #site and credentials hardcoded for now:
-host="ftp.iselabs.com"
-password="pGtr0400"
-username="sigftp"
-remote_dir="DATA/FT/"
+
 
 FTP = FTP(host)
 FTP.login(user=username, passwd=password)
@@ -56,23 +53,16 @@ FTP.login(user=username, passwd=password)
 welcome_message=FTP.getwelcome()
 print("FTP server welcome message is: " + welcome_message)
 
-# #Getting list of files in remote folder and local folder.
-
-#Remote Directory
-
-remote_file_list1 = FTP.nlst(remote_dir)
-remote_file_list2= FTP.mlsd(remote_dir)
 
 #try to get a list of all file names:
-#files_already_downloaded=masterfile_data("source_file")         #looks nice, doesn't work
 #just iterate...
 files_already_downloaded=[]
 for this_item in masterfile_data:
-    files_already_downloaded.append(this_item["source_file"])
+    files_already_downloaded.append(this_item["source_file"])           #make a list of the "source_file" records.  I don't actually use anything else in the log file yet.
 
 
 for name, fact in FTP.mlsd(remote_dir):
-    if fact["type"]== 'file':                               # the first thing it lists is the current and parent directory 
+    if fact["type"]== 'file':                               # the first thing it lists is the current and parent directory.  So skip until you get to actual files.
         
         if name in files_already_downloaded:                                     #["source_file"]:
             print("File Exists: Passing on " + name)
@@ -81,7 +71,6 @@ for name, fact in FTP.mlsd(remote_dir):
             print("Downloading " + name)
             #decide what to do with this file.  Based on the file name, put it in the right subdir.
             #check for corr/setup/other kinds of trash files:
-           # this_name=str(name)             #make sure its a string
             summary=False
             text_file=False
             setup_file=False
